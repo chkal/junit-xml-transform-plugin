@@ -69,9 +69,13 @@ public class SpotbugsTransformer extends AbstractTransformer {
     }
 
     StringBuilder result = new StringBuilder();
-    result.append("Line ").append(sourceLine.getStart());
-    if (!sourceLine.getStart().equals(sourceLine.getEnd())) {
-      result.append("-").append(sourceLine.getEnd());
+    if (sourceLine.getStart() != null) {
+      result.append("Line ").append(sourceLine.getStart());
+      if (sourceLine.getEnd() != null && !sourceLine.getStart().equals(sourceLine.getEnd())) {
+        result.append("-").append(sourceLine.getEnd());
+      }
+    } else {
+      result.append("Unknown location");
     }
     result.append(": ").append(bugInstance.getShortMessage());
 
