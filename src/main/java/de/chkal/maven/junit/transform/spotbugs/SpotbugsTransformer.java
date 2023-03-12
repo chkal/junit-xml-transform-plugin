@@ -3,6 +3,7 @@ package de.chkal.maven.junit.transform.spotbugs;
 import de.chkal.maven.junit.transform.AbstractTransformer;
 import de.chkal.maven.junit.transform.xml.junit.Testsuite;
 import de.chkal.maven.junit.transform.xml.junit.Testsuite.Testcase;
+import de.chkal.maven.junit.transform.xml.junit.Testsuite.Testcase.Failure;
 import de.chkal.maven.junit.transform.xml.spotbugs.BugCollection;
 import de.chkal.maven.junit.transform.xml.spotbugs.BugCollection.BugInstance;
 import de.chkal.maven.junit.transform.xml.spotbugs.SourceLine;
@@ -40,10 +41,15 @@ public class SpotbugsTransformer extends AbstractTransformer {
 
   private Testcase transformBugInstance(BugCollection bugCollection, BugInstance bugInstance) {
 
+    Failure failure = new Failure();
+    failure.setMessage(bugInstance.getShortMessage());
+    failure.setType(bugInstance.getCategory());
+    failure.setValue(getFullDescription(bugCollection, bugInstance));
+
     Testcase testcase = new Testcase();
     testcase.setClassname(getTestClassName(bugInstance));
     testcase.setName(getTestName(bugInstance));
-    testcase.setSystemOut(getFullDescription(bugCollection, bugInstance));
+    testcase.getFailure().add(failure);
     return testcase;
 
   }
@@ -74,10 +80,9 @@ public class SpotbugsTransformer extends AbstractTransformer {
       if (sourceLine.getEnd() != null && !sourceLine.getStart().equals(sourceLine.getEnd())) {
         result.append("-").append(sourceLine.getEnd());
       }
-    } else {
-      result.append("Unknown location");
+      result.append(": ");
     }
-    result.append(": ").append(bugInstance.getShortMessage());
+    result.append(bugInstance.getShortMessage());
 
     return result.toString();
 
